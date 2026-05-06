@@ -1,0 +1,34 @@
+# datajoint_symphony configuration
+#
+# Search order (first one wins; env vars override individual fields):
+#   1. explicit path argument to load_config(path)
+#   2. $DJ_SYMPHONY_CONFIG
+#   3. ~/.datajoint_config.yaml
+#   4. <repo>/config/datajoint_config.yaml  (this file, when running from a checkout)
+#
+# This file is the dev / Docker fixture default. For production, copy to
+# ~/.datajoint_config.yaml and edit, or override with env vars (DJ_HOST,
+# DJ_USER, DJ_PASSWORD, ...). Don't commit real passwords.
+
+database:
+  host: 127.0.0.1
+  user: root
+  password: simple        # override with $DJ_PASSWORD in shared environments
+  port: 3306
+  reconnect: true
+  use_tls: null
+
+schema:
+  name: symphony
+
+paths:
+  json_root: null         # e.g. /Volumes/data/data/json
+  h5_root: null           # e.g. /Volumes/data/data/h5
+  mea_data_root: null     # e.g. /Volumes/data/data/sorted
+  mea_analysis_root: null # e.g. /Volumes/data/analysis
+  download_dir: ~/datajoint_downloads
+
+ingestion:
+  batch_size: 1000
+  skip_existing: true
+  promote_unknown_protocols: true

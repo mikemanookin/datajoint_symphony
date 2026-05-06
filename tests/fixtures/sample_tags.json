@@ -1,0 +1,15 @@
+{
+  "epo-11111111-7777-7777-7777-777777777777": {
+    "table": "epoch",
+    "tags": [
+      ["mike", "good"],
+      ["greg", "exemplar"]
+    ]
+  },
+  "cel-dddddddd-4444-4444-4444-444444444444": {
+    "table": "cell",
+    "tags": [
+      ["mike", "ParasolOff_confirmed"]
+    ]
+  }
+}

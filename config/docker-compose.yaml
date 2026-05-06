@@ -1,0 +1,28 @@
+# Local MySQL fixture for datajoint_symphony.
+#
+# Usage:
+#   cd config && docker compose up -d
+#
+# This brings up MySQL 8 on 127.0.0.1:3306 with root/simple credentials,
+# matching config/datajoint_config.yaml. Tear down with `docker compose down`
+# (add `-v` to wipe the data volume).
+
+services:
+  mysql:
+    image: datajoint/mysql:8.0
+    container_name: datajoint_symphony_mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: simple
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -psimple"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  mysql_data:

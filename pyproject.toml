@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datajoint_symphony"
+version = "2.0.0"
+description = "DataJoint 2.0 ingestion + query for Symphony 3 metadata"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Manookin Lab", email = "manookin@uw.edu" }
+]
+license = { text = "BSD-3-Clause" }
+dependencies = [
+  "datajoint>=0.14",
+  "pyyaml>=6.0",
+  "pymysql>=1.1",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+h5 = ["h5py>=3.10"]
+dev = [
+  "pytest>=8.0",
+  "pytest-mock>=3.12",
+  "h5py>=3.10",
+  "pydot>=1.4",        # for dj.Diagram rendering
+]
+
+[project.scripts]
+symphony_dj = "symphony_dj.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src/python"]
+include = ["symphony_dj*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: tests that need a live MySQL connection",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning:datajoint",
+]
