@@ -20,8 +20,12 @@ follows DataJoint conventions (`snake_case`, primary keys above the
   `EpochGroup` and `Protocol`).
 - **JSON columns** hold pass-through metadata that doesn't get its own
   column. Required-by-the-app fields are promoted to columns; everything
-  else lives in `properties: longblob` (DataJoint's `longblob` is the
-  JSON-friendly attribute type per v2.0).
+  else lives in `properties: json`. DataJoint 2.0's `json` type uses
+  MySQL's native `JSON` column and auto-encodes Python dicts on insert
+  / decodes on fetch via the JSON category in `TYPE_PATTERN`. Raw
+  `longblob` is recognised but not auto-encoded (PyMySQL refuses to
+  escape a dict directly), and the legacy alias `blob` was removed in
+  DataJoint 2.0.
 - **Timestamps** are stored as `datetime(6)` (microsecond precision) in
   UTC. `*_offset_hours` columns preserve the original `.NET`
   `DateTimeOffset` offset so the local wall-clock time is recoverable.
@@ -107,7 +111,7 @@ rig_type = NULL : enum('PATCH','MEA')
 h5_path = NULL : varchar(1023)          # path to source .h5 (optional)
 json_path = NULL : varchar(1023)        # path to source _dj.json (optional)
 date_added = CURRENT_TIMESTAMP : timestamp
-properties : longblob                   # full passthrough properties dict
+properties : json                   # full passthrough properties dict
 ```
 
 `experiment_uuid` is the UUID of the root `experiment-{uuid}` HDF5
@@ -130,7 +134,7 @@ age = NULL : varchar(64)
 weight = NULL : varchar(64)
 dark_adaptation = NULL : varchar(255)
 species = NULL : varchar(255)
-properties : longblob
+properties : json
 ```
 
 ### `Preparation` (Manual)
@@ -146,7 +150,7 @@ bath_solution = NULL : varchar(255)
 preparation_type = NULL : varchar(255)
 region = NULL : varchar(255)
 array_pitch = NULL : varchar(32)        # "30um" / "60um" / "120um"
-properties : longblob
+properties : json
 ```
 
 ### `Cell` (Manual)
@@ -159,7 +163,7 @@ label = NULL : varchar(255)
 start_time = NULL : datetime(6)
 start_offset_hours = NULL : float
 cell_type = NULL : varchar(255)
-properties : longblob
+properties : json
 ```
 
 ### `EpochGroup` (Manual)
@@ -174,7 +178,7 @@ start_offset_hours = NULL : float
 end_time = NULL : datetime(6)
 end_offset_hours = NULL : float
 keywords = NULL : varchar(1024)
-properties : longblob
+properties : json
 ```
 
 ### `EpochBlock` (Manual)
@@ -189,8 +193,8 @@ start_time = NULL : datetime(6)
 start_offset_hours = NULL : float
 end_time = NULL : datetime(6)
 end_offset_hours = NULL : float
-parameters : longblob                   # protocolParameters/* attribute pass-through
-properties : longblob                   # epochStarts, frameTimesMs, array_id, n_samples, ...
+parameters : json                   # protocolParameters/* attribute pass-through
+properties : json                   # epochStarts, frameTimesMs, array_id, n_samples, ...
 ```
 
 ### `Epoch` (Manual)
@@ -205,8 +209,8 @@ end_time = NULL : datetime(6)
 end_offset_hours = NULL : float
 is_partial = 0 : tinyint
 keywords = NULL : varchar(1024)
-parameters : longblob                   # per-epoch protocol parameters
-properties : longblob
+parameters : json                   # per-epoch protocol parameters
+properties : json
 ```
 
 ### `Response` (Manual; per-epoch, per-device)
@@ -221,7 +225,7 @@ input_time = NULL : datetime(6)
 input_offset_hours = NULL : float
 units = NULL : varchar(31)
 h5path = NULL : varchar(1023)           # path inside the .h5 to "data" dataset
-properties : longblob
+properties : json
 ```
 
 `Response` rows are pure metadata. Raw sample arrays are not duplicated
@@ -240,8 +244,8 @@ sample_rate_units = NULL : varchar(31)
 units = NULL : varchar(31)
 duration_seconds = NULL : double
 h5path = NULL : varchar(1023)
-params : longblob                       # generator params (param_*)
-properties : longblob
+params : json                       # generator params (param_*)
+properties : json
 ```
 
 ### `Background` (Manual; per-epoch, per-device)
@@ -254,7 +258,7 @@ value = NULL : double
 value_units = NULL : varchar(31)
 sample_rate = NULL : double
 sample_rate_units = NULL : varchar(31)
-properties : longblob
+properties : json
 ```
 
 ### `Note` (Manual)
@@ -325,7 +329,7 @@ linking a block to its sorted output.
 | Legacy | New | Why |
 |---|---|---|
 | `id: int auto_increment` + `h5_uuid: varchar(255)` | `*_uuid: varchar(36)` (single PK) | UUIDs are stable across re-ingestion and removable-host moves; the dual-key pattern was bookkeeping the schema didn't need. |
-| `properties: json` | `properties: longblob` | DataJoint 2.0 prefers `longblob` for nested Python dicts; `json` is MySQL-only and breaks portability. |
+| `properties: json` (legacy) | `properties: json` (kept) | The legacy schema actually had this right. DataJoint 2.0 has first-class JSON support: declaring `: json` uses MySQL's native JSON column type and auto-encodes Python dicts via the JSON category in `TYPE_PATTERN`. The 0.x-era `blob` alias has been removed. |
 | `parent_id` + projected FK aliasing (`Experiment.proj(parent_id='id')`) | Direct `-> ParentTable` | One canonical FK per relationship. The ambiguous-aliased style was hard to query and forced manual join logic in `query.py`. |
 | No `Background` table | First-class `Background` | DJ JSON exposes per-device backgrounds; legacy code dropped them. |
 | Raw `tag` field as comma-separated string | One `Tag` row per `(entity, user, tag)` | Allows native DJ filtering and removes string parsing in the query layer. |

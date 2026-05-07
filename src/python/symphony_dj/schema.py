@@ -2,7 +2,9 @@
 
 Tables follow ``spec/01_schema.md``. Every Symphony entity uses its
 upstream UUID as the single primary key (see ADR-0001). All "open"
-metadata blobs are stored as ``longblob`` (see ADR-0002).
+metadata fields (``properties``, ``parameters``, ``params``) are
+declared as ``json`` so DataJoint 2.0's JSON-category encoder
+auto-converts Python dicts on insert / fetch (see ADR-0002).
 
 Usage::
 
@@ -53,7 +55,7 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
     @schema
     class Protocol(dj.Lookup):
         definition = """
-        # Symphony protocol identifier (e.g. "manookinlab.protocols.SpatialNoise")
+        # Symphony protocol identifier, e.g. manookinlab.protocols.SpatialNoise
         protocol_id : varchar(255)
         ---
         display_name = NULL : varchar(255)
@@ -68,9 +70,9 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         ---
         purpose = NULL : varchar(255)
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         end_time = NULL : datetime(6)
-        end_offset_hours = NULL : float
+        end_offset_hours = NULL : float32
         keywords = NULL : varchar(1024)
         experimenter = NULL : varchar(255)
         institution = NULL : varchar(255)
@@ -80,8 +82,8 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         rig_type = NULL : enum('PATCH','MEA')
         h5_path = NULL : varchar(1023)
         json_path = NULL : varchar(1023)
-        date_added = CURRENT_TIMESTAMP : timestamp
-        properties : longblob
+        date_added = CURRENT_TIMESTAMP : datetime
+        properties : json
         """
 
     @schema
@@ -93,7 +95,7 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> Experiment
         label = NULL : varchar(255)
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         animal_id = NULL : varchar(255)
         description = NULL : varchar(1024)
         sex = NULL : varchar(32)
@@ -101,7 +103,7 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         weight = NULL : varchar(64)
         dark_adaptation = NULL : varchar(255)
         species = NULL : varchar(255)
-        properties : longblob
+        properties : json
         """
 
     @schema
@@ -113,12 +115,12 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> Animal
         label = NULL : varchar(255)
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         bath_solution = NULL : varchar(255)
         preparation_type = NULL : varchar(255)
         region = NULL : varchar(255)
         array_pitch = NULL : varchar(32)
-        properties : longblob
+        properties : json
         """
 
     @schema
@@ -130,9 +132,9 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> Preparation
         label = NULL : varchar(255)
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         cell_type = NULL : varchar(255)
-        properties : longblob
+        properties : json
         """
 
     @schema
@@ -144,11 +146,11 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> Cell
         label = NULL : varchar(255)
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         end_time = NULL : datetime(6)
-        end_offset_hours = NULL : float
+        end_offset_hours = NULL : float32
         keywords = NULL : varchar(1024)
-        properties : longblob
+        properties : json
         """
 
     # Forward-declared so EpochBlock can FK to it.
@@ -174,11 +176,11 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> [nullable] SortingChunk
         data_file = NULL : varchar(1023)
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         end_time = NULL : datetime(6)
-        end_offset_hours = NULL : float
-        parameters : longblob
-        properties : longblob
+        end_offset_hours = NULL : float32
+        parameters : json
+        properties : json
         """
 
     @schema
@@ -189,13 +191,13 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         ---
         -> EpochBlock
         start_time = NULL : datetime(6)
-        start_offset_hours = NULL : float
+        start_offset_hours = NULL : float32
         end_time = NULL : datetime(6)
-        end_offset_hours = NULL : float
-        is_partial = 0 : tinyint
+        end_offset_hours = NULL : float32
+        is_partial = 0 : bool
         keywords = NULL : varchar(1024)
-        parameters : longblob
-        properties : longblob
+        parameters : json
+        properties : json
         """
 
     @schema
@@ -205,13 +207,13 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> Epoch
         device_name : varchar(127)
         ---
-        sample_rate = NULL : double
+        sample_rate = NULL : float64
         sample_rate_units = NULL : varchar(31)
         input_time = NULL : datetime(6)
-        input_offset_hours = NULL : float
+        input_offset_hours = NULL : float32
         units = NULL : varchar(31)
         h5path = NULL : varchar(1023)
-        properties : longblob
+        properties : json
         """
 
     @schema
@@ -222,13 +224,13 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         device_name : varchar(127)
         ---
         stimulus_id = NULL : varchar(255)
-        sample_rate = NULL : double
+        sample_rate = NULL : float64
         sample_rate_units = NULL : varchar(31)
         units = NULL : varchar(31)
-        duration_seconds = NULL : double
+        duration_seconds = NULL : float64
         h5path = NULL : varchar(1023)
-        params : longblob
-        properties : longblob
+        params : json
+        properties : json
         """
 
     @schema
@@ -238,11 +240,11 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         -> Epoch
         device_name : varchar(127)
         ---
-        value = NULL : double
+        value = NULL : float64
         value_units = NULL : varchar(31)
-        sample_rate = NULL : double
+        sample_rate = NULL : float64
         sample_rate_units = NULL : varchar(31)
-        properties : longblob
+        properties : json
         """
 
     @schema
@@ -254,7 +256,7 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         entity_table : varchar(63)
         entity_uuid : varchar(36)
         note_time = NULL : datetime(6)
-        note_offset_hours = NULL : float
+        note_offset_hours = NULL : float32
         text : varchar(4095)
         """
 
@@ -280,7 +282,7 @@ def declare(schema: dj.Schema) -> Dict[str, Type[Any]]:
         ---
         -> SortingChunk
         algorithm : varchar(127)
-        cluster_id : int
+        cluster_id : int32
         unique index (sorting_chunk_id, algorithm, cluster_id)
         """
 

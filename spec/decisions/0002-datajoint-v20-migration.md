@@ -11,9 +11,16 @@ either no longer work in 2.0 or are deprecated:
 
 - `dj.schema('schema')` (lowercase factory). Still callable in 2.0 but
   the documented form is `dj.Schema(name)`.
-- `properties: json` columns. DataJoint 2.0 standardizes on `longblob`
-  for nested-Python-dict storage; `json` is MySQL-only and breaks the
-  PostgreSQL adapter.
+- `properties: json` columns. DataJoint 2.0 has **first-class JSON
+  support**: declaring an attribute as `: json` uses MySQL's native
+  `JSON` column type and auto-encodes/decodes Python dicts via the
+  JSON category in `TYPE_PATTERN`. The legacy `blob` alias was removed
+  in 2.0 (only `bytes`, `tinyblob…longblob`, `<adapter>`, and external
+  blob stores like `blob@store` are recognised); raw `longblob` skips
+  the encoder, which causes ``TypeError: dict can not be used as
+  parameter`` on insert. So the **legacy schema's `: json` was already
+  correct** — we kept it. PostgreSQL portability is a non-goal for
+  this project (we run MySQL-only).
 - `dj.conn().connect()` followed by `dj.config['database.host'] = ...`.
   In 2.0 the recommended order is `dj.config.update({...})` *before*
   `dj.conn()`, and `dj.conn()` returns the cached connection.
@@ -32,7 +39,7 @@ Concretely:
 - `dj.Schema(name)` is the schema factory; `dj.schema(...)` is not used.
 - Connections are opened via `dj.config.update({...}); dj.conn()`,
   centralized in `symphony_dj.connection.connect()`.
-- All "blob-like" columns are `longblob`.
+- All "open metadata" columns (`properties`, `parameters`, `params`) are `json`. DataJoint 2.0 maps this to MySQL's native JSON column type with automatic dict encode/decode.
 - `insert(..., skip_duplicates=True)` is the standard idempotency hook
   (documented v2.0 API).
 - `dj.Diagram(schema)` is used for ER diagrams in docs/notebooks.
@@ -56,9 +63,10 @@ Concretely:
 - The legacy app stops working as-is. We mitigate by leaving
   `old/app.py` and `old/schema.py` in the repo as reference, and by
   documenting the migration in [`docs/migration_v2.md`](../../docs/migration_v2.md).
-- `longblob` columns store pickled Python dicts. Anyone connecting via
-  raw SQL sees binary blobs. We accept this — the canonical access path
-  is the Python library.
+- `json` columns are MySQL JSON, so raw-SQL clients can read them
+  directly (`SELECT properties->'$.lab' FROM experiment`). This is an
+  improvement over the 0.x `longblob+pickle` pattern, which produced
+  binary blobs that only Python could decode.
 
 ## Alternatives considered
 

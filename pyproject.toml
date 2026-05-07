@@ -43,5 +43,10 @@ markers = [
   "integration: tests that need a live MySQL connection",
 ]
 filterwarnings = [
+  # DataJoint chatter we can't fix from here:
   "ignore::DeprecationWarning:datajoint",
+  # Bootstrap nudge — we configure via YAML/env, not the dj_local_conf.json template.
+  "ignore:No datajoint.json found:UserWarning",
 ]
+log_cli = false       # keep DataJoint's "Native type 'int unsigned auto_increment' ..."
+log_level = "ERROR"   # log noise out of stdout during tests

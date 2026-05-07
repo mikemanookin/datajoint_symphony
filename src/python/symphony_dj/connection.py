@@ -11,7 +11,7 @@ Typical use::
 
     db = connect()                                 # uses YAML / env-var config
     db.ingest_json("/path/to/exp_dj.json")
-    db.Experiment.fetch()
+    db.Experiment.to_dicts()
     db.close()
 """
 from __future__ import annotations
@@ -43,9 +43,13 @@ class Database:
         self.config = config
         self.schema = schema
         self._tables = tables
-        # Expose each table class as an attribute on this object.
+        # Expose each table as an *instance* (not the class). DataJoint 2.0
+        # removed ``__len__`` from the metaclass, so ``len(MyTable)`` raises
+        # ``TypeError: object of type 'TableMeta' has no len()`` — but
+        # instances have ``__len__`` defined and behave the same for every
+        # other call (insert/fetch/restriction/projection).
         for name, cls in tables.items():
-            setattr(self, name, cls)
+            setattr(self, name, cls())
         self._query: Optional[Query] = None
 
     # -- ingestion ------------------------------------------------------
@@ -108,11 +112,15 @@ class Database:
         return dj.Diagram(self.schema)
 
     def drop(self, force: bool = False) -> None:
-        """Drop the entire schema (DESTRUCTIVE; tests use this)."""
-        if force:
-            self.schema.drop_quick()
-        else:
-            self.schema.drop()
+        """Drop the entire schema (DESTRUCTIVE; tests use this).
+
+        ``force=True`` skips DataJoint's interactive confirmation —
+        that's the path tests need.
+        """
+        # DataJoint 2.2.x: Schema.drop(prompt: bool | None = None).
+        # prompt=False means "no confirmation"; prompt=None defers to
+        # the safemode setting.
+        self.schema.drop(prompt=False if force else None)
 
     def close(self) -> None:
         """Close the underlying DataJoint connection."""

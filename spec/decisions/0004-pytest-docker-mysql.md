@@ -69,5 +69,5 @@ CI runs:
   Considered; rejected because it doesn't match production MySQL flags
   closely enough and the Docker fixture is what the team already uses.
 - **SQLite via DataJoint's experimental SQLite backend.** As of v2.0,
-  the SQLite path drops `longblob` and named foreign keys behave
+  the SQLite path doesn't have a JSON column type and named foreign keys behave
   differently — too many tests would behave differently from prod.

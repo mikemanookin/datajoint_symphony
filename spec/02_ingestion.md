@@ -52,7 +52,7 @@ re-ingesting a partial file fills in only the missing rows.
 | `keywords` | `keywords` | comma-joined if list |
 | `properties.experimenter`/`institution`/`lab`/`project`/`rig` | dedicated columns | promoted out of `properties` |
 | `rig_type` (synthesized; `'MEA'` if `mea_raw_data_path`, else `'PATCH'`) | `rig_type` | from `parse_data.Symphony2Reader.create_symphony_dict` |
-| `properties` (full dict) | `properties` (longblob) | full pass-through |
+| `properties` (full dict) | `properties` (json) | full pass-through |
 
 The `h5_path` and `json_path` columns are filled by the ingestor with
 the absolute path it was handed. They are recorded only — never used as
@@ -109,8 +109,8 @@ part of any key — and may be NULL if the caller doesn't pass them.
 | `epoch_block['protocolID']` | `protocol_id` | FK; auto-inserted into `Protocol` if new |
 | `epoch_block['dataFile']` | `data_file` | empty for patch |
 | `startTime...`/`endTime...` | `start_time`/`end_time` (+ offsets) | |
-| `epoch_block['parameters']` | `parameters` | longblob, byte-exact pass-through |
-| `epoch_block['properties']` | `properties` | longblob; includes `epochStarts`, `frameTimesMs`, `array_id`, `n_samples` |
+| `epoch_block['parameters']` | `parameters` | json, byte-exact pass-through |
+| `epoch_block['properties']` | `properties` | json; includes `epochStarts`, `frameTimesMs`, `array_id`, `n_samples` |
 
 ### Epoch
 

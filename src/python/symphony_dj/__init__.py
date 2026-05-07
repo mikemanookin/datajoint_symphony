@@ -8,7 +8,7 @@ Public surface:
     db  = connect(cfg)            # opens MySQL, declares schema, returns Database
 
     db.ingest_json("/path/to/exp_dj.json")
-    db.Experiment.fetch()
+    db.Experiment.to_dicts()
     db.query.tree(experiment_uuid)
     db.close()
 

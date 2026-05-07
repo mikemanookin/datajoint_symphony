@@ -19,7 +19,7 @@ from symphony_dj.ingest import (
 
 def test_experiment_from_fixture(sample_json):
     row = build_experiment_tuple(sample_json)
-    assert row["experiment_uuid"] == "exp-aaaaaaaa-1111-1111-1111-111111111111"
+    assert row["experiment_uuid"] == "aaaaaaaa-1111-1111-1111-111111111111"
     assert row["lab"] == "Manookin"
     assert row["rig_type"] == "PATCH"
     assert row["start_offset_hours"] == -7.0
@@ -31,7 +31,7 @@ def test_experiment_from_fixture(sample_json):
 def test_animal_from_fixture(sample_json):
     animal = sample_json["animals"][0]
     row = build_animal_tuple(animal, "exp-XYZ")
-    assert row["animal_uuid"] == "ani-bbbbbbbb-2222-2222-2222-222222222222"
+    assert row["animal_uuid"] == "bbbbbbbb-2222-2222-2222-222222222222"
     assert row["experiment_uuid"] == "exp-XYZ"
     assert row["label"] == "A1"
     assert row["species"] == "macaque"
@@ -42,7 +42,7 @@ def test_animal_from_fixture(sample_json):
 def test_preparation_from_fixture(sample_json):
     prep = sample_json["animals"][0]["preparations"][0]
     row = build_preparation_tuple(prep, "ani-XYZ")
-    assert row["preparation_uuid"] == "pre-cccccccc-3333-3333-3333-333333333333"
+    assert row["preparation_uuid"] == "cccccccc-3333-3333-3333-333333333333"
     assert row["animal_uuid"] == "ani-XYZ"
     assert row["bath_solution"] == "Ames"
     # NB: the JSON key is singular `preparation` for the type.
@@ -53,7 +53,7 @@ def test_preparation_from_fixture(sample_json):
 def test_cell_from_fixture(sample_json):
     cell = sample_json["animals"][0]["preparations"][0]["cells"][0]
     row = build_cell_tuple(cell, "pre-XYZ")
-    assert row["cell_uuid"] == "cel-dddddddd-4444-4444-4444-444444444444"
+    assert row["cell_uuid"] == "dddddddd-4444-4444-4444-444444444444"
     assert row["preparation_uuid"] == "pre-XYZ"
     assert row["cell_type"] == "ParasolOff"
 
@@ -64,7 +64,7 @@ def test_epoch_group_from_fixture(sample_json):
         ["epoch_groups"][0]
     )
     row = build_epoch_group_tuple(eg, "cel-XYZ")
-    assert row["epoch_group_uuid"] == "egp-eeeeeeee-5555-5555-5555-555555555555"
+    assert row["epoch_group_uuid"] == "eeeeeeee-5555-5555-5555-555555555555"
     assert row["cell_uuid"] == "cel-XYZ"
     assert row["start_time"] is not None
     assert row["end_time"] is not None
@@ -76,7 +76,7 @@ def test_epoch_block_from_fixture(sample_json):
         ["epoch_groups"][0]["epoch_blocks"][0]
     )
     row = build_epoch_block_tuple(eb, "egp-XYZ")
-    assert row["epoch_block_uuid"] == "ebl-ffffffff-6666-6666-6666-666666666666"
+    assert row["epoch_block_uuid"] == "ffffffff-6666-6666-6666-666666666666"
     assert row["epoch_group_uuid"] == "egp-XYZ"
     assert row["protocol_id"] == "manookinlab.protocols.SpatialNoise"
     assert row["data_file"] == "20260410H.h5"
@@ -90,7 +90,7 @@ def test_epoch_from_fixture(sample_json):
         ["epoch_groups"][0]["epoch_blocks"][0]["epochs"][0]
     )
     row = build_epoch_tuple(epoch, "ebl-XYZ")
-    assert row["epoch_uuid"] == "epo-11111111-7777-7777-7777-777777777777"
+    assert row["epoch_uuid"] == "11111111-7777-7777-7777-777777777777"
     assert row["epoch_block_uuid"] == "ebl-XYZ"
     assert row["is_partial"] == 0
     assert row["parameters"]["noiseSeed"] == 1

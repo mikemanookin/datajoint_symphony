@@ -50,11 +50,20 @@ def test_protocol_autocreate(db, sample_json_path):
 
 @pytest.mark.integration
 def test_delete_cascades(db, sample_json_path):
+    """``.delete()`` walks the DataJoint DAG and removes children first.
+
+    DataJoint creates MySQL foreign keys with ``ON DELETE RESTRICT``, so
+    ``.delete_quick()`` (raw SQL DELETE without traversal) would fail
+    with an FK violation. ``.delete(prompt=False)`` is the cascade
+    path; ``prompt=False`` skips the interactive confirmation. (Note:
+    DataJoint 2.x calls this ``prompt=``; older versions used
+    ``safemode=``.)
+    """
     db.ingest_json(sample_json_path)
     assert len(db.Epoch) == 2
-    (db.Experiment & "experiment_uuid='exp-aaaaaaaa-1111-1111-1111-111111111111'") \
-        .delete_quick()
-    # FK-cascade should remove everything below.
+    (db.Experiment & "experiment_uuid='aaaaaaaa-1111-1111-1111-111111111111'") \
+        .delete(prompt=False)
+    # DataJoint cascades through the DAG, removing everything below.
     assert len(db.Animal) == 0
     assert len(db.Preparation) == 0
     assert len(db.Cell) == 0
@@ -66,5 +75,5 @@ def test_delete_cascades(db, sample_json_path):
 def test_uuid_round_trip(db, sample_json, sample_json_path):
     db.ingest_json(sample_json_path)
     uuid_in_json = sample_json["uuid"]
-    rows = (db.Experiment & {"experiment_uuid": uuid_in_json}).fetch()
+    rows = (db.Experiment & {"experiment_uuid": uuid_in_json}).to_dicts()
     assert len(rows) == 1

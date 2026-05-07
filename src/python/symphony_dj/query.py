@@ -105,7 +105,7 @@ class Query:
         parent_key = UUID_KEY[parent_table]
         child_key = UUID_KEY.get(child_table)
         cls = getattr(self.db, child_table)
-        rows = (cls & {parent_key: parent_uuid}).fetch(as_dict=True)
+        rows = (cls & {parent_key: parent_uuid}).to_dicts()
         out = []
         # Identify the *single* hierarchy child of the current child, if any.
         next_table = _next_in_hierarchy(child_table)
@@ -131,18 +131,69 @@ class Query:
         self, *, protocol_id: Optional[str] = None, **filters: Any
     ) -> dj.expression.QueryExpression:
         """Return ``Epoch * EpochBlock * EpochGroup * Cell * Preparation *
-        Animal * Experiment`` filtered by any kwargs (column-name-matched
-        at any level).
+        Animal * Experiment`` filtered by any kwargs.
+
+        Multiple tables in the hierarchy share column names (``label``,
+        ``start_time``, ``parameters``, ``properties``). DataJoint 2.0
+        refuses to auto-merge same-named attributes from different
+        lineages, so we project each table to a clean, uniquely-named
+        view before joining. Open blobs (``parameters``/``properties``)
+        are dropped from the joined view — fetch the original table by
+        UUID if you need them.
         """
-        joined = (
-            self.db.Epoch
-            * self.db.EpochBlock
-            * self.db.EpochGroup
-            * self.db.Cell
-            * self.db.Preparation
-            * self.db.Animal
-            * self.db.Experiment
+        # NOTE: dj.proj signature is .proj(*positional, **renamed). Python
+        # syntax requires positional args before keyword args.
+        epoch = self.db.Epoch.proj(
+            "is_partial",
+            epoch_start="start_time",
+            epoch_end="end_time",
+            epoch_offset_hours="start_offset_hours",
         )
+        epoch_block = self.db.EpochBlock.proj(
+            "protocol_id",
+            "data_file",
+            block_start="start_time",
+            block_end="end_time",
+        )
+        epoch_group = self.db.EpochGroup.proj(
+            group_label="label",
+            group_start="start_time",
+            group_end="end_time",
+        )
+        cell = self.db.Cell.proj(
+            cell_label="label",
+            cell_type="cell_type",
+        )
+        preparation = self.db.Preparation.proj(
+            "bath_solution",
+            "preparation_type",
+            "region",
+            "array_pitch",
+            prep_label="label",
+        )
+        animal = self.db.Animal.proj(
+            "animal_id",
+            "species",
+            "sex",
+            "age",
+            "weight",
+            animal_label="label",
+        )
+        experiment = self.db.Experiment.proj(
+            "purpose",
+            "experimenter",
+            "institution",
+            "lab",
+            "project",
+            "rig",
+            "rig_type",
+        )
+
+        joined = (
+            epoch * epoch_block * epoch_group
+            * cell * preparation * animal * experiment
+        )
+
         if protocol_id is not None:
             joined = joined & {"protocol_id": protocol_id}
         if filters:
@@ -194,7 +245,7 @@ class Query:
     # ------------------------------------------------------------------
 
     def tags(self, entity_uuid: str) -> List[Tuple[str, str]]:
-        rows = (self.db.Tag & {"entity_uuid": entity_uuid}).fetch(as_dict=True)
+        rows = (self.db.Tag & {"entity_uuid": entity_uuid}).to_dicts()
         return [(r["user"], r["tag"]) for r in rows]
 
     def add_tag(

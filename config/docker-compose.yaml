@@ -2,27 +2,43 @@
 #
 # Usage:
 #   cd config && docker compose up -d
+#   ./scripts/wait_for_mysql.sh           # block until ready (uses Docker health)
 #
-# This brings up MySQL 8 on 127.0.0.1:3306 with root/simple credentials,
-# matching config/datajoint_config.yaml. Tear down with `docker compose down`
+# Brings up MySQL 8 on 127.0.0.1:3306 with root/simple credentials, matching
+# config/datajoint_config.yaml. Tear down with `docker compose down`
 # (add `-v` to wipe the data volume).
+#
+# We use the official `mysql:8.0` image (multi-arch, including arm64) instead
+# of `datajoint/mysql:8.0` (amd64-only). On Apple Silicon this avoids Rosetta
+# emulation and the 60–120s first-boot warmup that comes with it. The
+# innodb-buffer-pool-size / sql_mode settings below are the same ones the
+# datajoint/mysql image bakes in.
 
 services:
   mysql:
-    image: datajoint/mysql:8.0
+    image: mysql:8.0             # multi-arch (arm64 + amd64); no Rosetta on Apple Silicon
     container_name: datajoint_symphony_mysql
     restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: simple
+      MYSQL_ROOT_HOST: '%'       # allow root from any host (dev only)
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --max-allowed-packet=1073741824
+      --innodb-buffer-pool-size=512M
+      --sql-mode=NO_ENGINE_SUBSTITUTION
+      --explicit-defaults-for-timestamp=ON
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -psimple"]
+      # mysqladmin ping is built into the image — no extra dependencies on the host.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psimple"]
       interval: 5s
       timeout: 3s
-      retries: 30
+      retries: 60                # 60 * 5s = 5 min cap (covers ARM-emulated first-boot)
+      start_period: 30s          # don't count failures during this initial window
 
 volumes:
   mysql_data:

@@ -99,10 +99,10 @@ def test_diagram_renders(db):
     "Experiment", "Animal", "Preparation", "Cell",
     "EpochGroup", "EpochBlock", "Epoch",
 ])
-def test_properties_column_is_blob(db, table):
+def test_properties_column_is_json(db, table):
+    """``properties`` must be a DataJoint JSON-category column so dicts
+    auto-encode on insert (see ADR-0002)."""
     cls = getattr(db, table)
     assert "properties" in cls.heading.attributes
     typ = cls.heading.attributes["properties"].type
-    assert typ in ("longblob", "blob", "mediumblob"), (
-        f"{table}.properties type={typ}"
-    )
+    assert typ in ("json", "jsonb"), f"{table}.properties type={typ}"

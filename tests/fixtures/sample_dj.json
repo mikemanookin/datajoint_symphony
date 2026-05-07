@@ -1,5 +1,5 @@
 {
-  "uuid": "exp-aaaaaaaa-1111-1111-1111-111111111111",
+  "uuid": "aaaaaaaa-1111-1111-1111-111111111111",
   "label": "20260410H",
   "purpose": "test_fixture",
   "rig_type": "PATCH",
@@ -10,7 +10,7 @@
   "rig": "TestRig",
   "start_time": "04/10/2026 09:00:00:000000",
   "attributes": {
-    "uuid": "exp-aaaaaaaa-1111-1111-1111-111111111111",
+    "uuid": "aaaaaaaa-1111-1111-1111-111111111111",
     "purpose": "test_fixture",
     "startTimeDotNetDateTimeOffsetTicks": 638790336000000000,
     "startTimeDotNetDateTimeOffsetOffsetHours": -7.0,
@@ -28,10 +28,10 @@
   "animals": [
     {
       "label": "A1",
-      "uuid": "ani-bbbbbbbb-2222-2222-2222-222222222222",
+      "uuid": "bbbbbbbb-2222-2222-2222-222222222222",
       "start_time": "04/10/2026 09:00:00:000000",
       "attributes": {
-        "uuid": "ani-bbbbbbbb-2222-2222-2222-222222222222",
+        "uuid": "bbbbbbbb-2222-2222-2222-222222222222",
         "label": "A1",
         "creationTimeDotNetDateTimeOffsetTicks": 638790336000000000,
         "creationTimeDotNetDateTimeOffsetOffsetHours": -7.0
@@ -48,10 +48,10 @@
       "preparations": [
         {
           "label": "OD",
-          "uuid": "pre-cccccccc-3333-3333-3333-333333333333",
+          "uuid": "cccccccc-3333-3333-3333-333333333333",
           "start_time": "04/10/2026 09:05:00:000000",
           "attributes": {
-            "uuid": "pre-cccccccc-3333-3333-3333-333333333333",
+            "uuid": "cccccccc-3333-3333-3333-333333333333",
             "label": "OD",
             "creationTimeDotNetDateTimeOffsetTicks": 638790339000000000,
             "creationTimeDotNetDateTimeOffsetOffsetHours": -7.0
@@ -64,10 +64,10 @@
           "cells": [
             {
               "label": "cell1",
-              "uuid": "cel-dddddddd-4444-4444-4444-444444444444",
+              "uuid": "dddddddd-4444-4444-4444-444444444444",
               "start_time": "04/10/2026 09:10:00:000000",
               "attributes": {
-                "uuid": "cel-dddddddd-4444-4444-4444-444444444444",
+                "uuid": "dddddddd-4444-4444-4444-444444444444",
                 "label": "cell1",
                 "creationTimeDotNetDateTimeOffsetTicks": 638790342000000000,
                 "creationTimeDotNetDateTimeOffsetOffsetHours": -7.0
@@ -78,11 +78,11 @@
               "epoch_groups": [
                 {
                   "label": "Group1",
-                  "uuid": "egp-eeeeeeee-5555-5555-5555-555555555555",
+                  "uuid": "eeeeeeee-5555-5555-5555-555555555555",
                   "start_time": "04/10/2026 09:15:00:000000",
                   "end_time": "04/10/2026 09:30:00:000000",
                   "attributes": {
-                    "uuid": "egp-eeeeeeee-5555-5555-5555-555555555555",
+                    "uuid": "eeeeeeee-5555-5555-5555-555555555555",
                     "label": "Group1",
                     "startTimeDotNetDateTimeOffsetTicks": 638790345000000000,
                     "startTimeDotNetDateTimeOffsetOffsetHours": -7.0,
@@ -92,13 +92,13 @@
                   "properties": {},
                   "epoch_blocks": [
                     {
-                      "uuid": "ebl-ffffffff-6666-6666-6666-666666666666",
+                      "uuid": "ffffffff-6666-6666-6666-666666666666",
                       "protocolID": "manookinlab.protocols.SpatialNoise",
                       "dataFile": "20260410H.h5",
                       "start_time": "04/10/2026 09:15:00:000000",
                       "end_time": "04/10/2026 09:20:00:000000",
                       "attributes": {
-                        "uuid": "ebl-ffffffff-6666-6666-6666-666666666666",
+                        "uuid": "ffffffff-6666-6666-6666-666666666666",
                         "protocolID": "manookinlab.protocols.SpatialNoise",
                         "startTimeDotNetDateTimeOffsetTicks": 638790345000000000,
                         "startTimeDotNetDateTimeOffsetOffsetHours": -7.0,
@@ -116,11 +116,11 @@
                       },
                       "epochs": [
                         {
-                          "uuid": "epo-11111111-7777-7777-7777-777777777777",
+                          "uuid": "11111111-7777-7777-7777-777777777777",
                           "start_time": "2026-04-10T09:15:00-07:00",
                           "end_time": "2026-04-10T09:15:01-07:00",
                           "attributes": {
-                            "uuid": "epo-11111111-7777-7777-7777-777777777777",
+                            "uuid": "11111111-7777-7777-7777-777777777777",
                             "startTimeDotNetDateTimeOffsetTicks": 638790345000000000,
                             "startTimeDotNetDateTimeOffsetOffsetHours": -7.0,
                             "endTimeDotNetDateTimeOffsetTicks": 638790345010000000,
@@ -130,7 +130,7 @@
                           "properties": {},
                           "responses": {
                             "Amp1": {
-                              "uuid": "rsp-aaaa1111-8888-8888-8888-888888888888",
+                              "uuid": "aaaa1111-8888-8888-8888-888888888888",
                               "sampleRate": 10000.0,
                               "sampleRateUnits": "Hz",
                               "units": "pA",
@@ -141,7 +141,7 @@
                           },
                           "stimuli": {
                             "LightCrafter": {
-                              "uuid": "stm-aaaa1111-9999-9999-9999-999999999999",
+                              "uuid": "aaaa1111-9999-9999-9999-999999999999",
                               "stimulusID": "manookinlab.stimuli.SpatialNoise",
                               "sampleRate": 60.0,
                               "sampleRateUnits": "Hz",
@@ -151,7 +151,7 @@
                           },
                           "backgrounds": {
                             "Amp1": {
-                              "uuid": "bg-aaaa1111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                              "uuid": "aaaa1111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                               "value": 0.0,
                               "valueUnits": "pA",
                               "sampleRate": 10000.0,
@@ -160,11 +160,11 @@
                           }
                         },
                         {
-                          "uuid": "epo-22222222-7777-7777-7777-777777777777",
+                          "uuid": "22222222-7777-7777-7777-777777777777",
                           "start_time": "2026-04-10T09:15:01-07:00",
                           "end_time": "2026-04-10T09:15:02-07:00",
                           "attributes": {
-                            "uuid": "epo-22222222-7777-7777-7777-777777777777",
+                            "uuid": "22222222-7777-7777-7777-777777777777",
                             "startTimeDotNetDateTimeOffsetTicks": 638790345010000000,
                             "startTimeDotNetDateTimeOffsetOffsetHours": -7.0,
                             "endTimeDotNetDateTimeOffsetTicks": 638790345020000000,
@@ -174,7 +174,7 @@
                           "properties": {},
                           "responses": {
                             "Amp1": {
-                              "uuid": "rsp-bbbb2222-8888-8888-8888-888888888888",
+                              "uuid": "bbbb2222-8888-8888-8888-888888888888",
                               "sampleRate": 10000.0,
                               "sampleRateUnits": "Hz",
                               "units": "pA",

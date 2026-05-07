@@ -84,14 +84,23 @@ def test_invariant_3_protocol_parameter_fidelity(db, sample_json, sample_json_pa
 def test_invariant_4_device_name_format(db, sample_json_path):
     """Device names in Response/Stimulus/Background are short, not UUID-suffixed."""
     db.ingest_json(sample_json_path)
-    devices = (db.Response).fetch("device_name")
-    for d in devices:
+    rows = db.Response.to_dicts()
+    for row in rows:
+        d = row["device_name"]
         assert "-" not in d or d.count("-") < 4, f"Device name looks UUID-suffixed: {d}"
 
 
 @pytest.mark.integration
 def test_invariant_5_timestamp_roundtrip(db, sample_json, sample_json_path):
-    """ticks → datetime → ticks recovers the original ticks (modulo 1µs)."""
+    """ticks → datetime → ticks recovers the original ticks (modulo 1µs).
+
+    MySQL ``datetime(6)`` is timezone-naive: it stores the *wall-clock* of
+    the original tz-aware datetime and drops the offset. So when we read
+    ``start_time`` back, we have to re-attach ``start_offset_hours``
+    before converting back to UTC ticks. Otherwise the recovery is off
+    by exactly the offset (e.g., 7 h for Pacific).
+    """
+    from datetime import timedelta, timezone
     from symphony_dj.timestamps import datetime_to_ticks
 
     db.ingest_json(sample_json_path)
@@ -102,7 +111,11 @@ def test_invariant_5_timestamp_roundtrip(db, sample_json, sample_json_path):
     original_ticks = eb_json["attributes"]["startTimeDotNetDateTimeOffsetTicks"]
 
     eb_db = (db.EpochBlock & {"epoch_block_uuid": eb_json["uuid"]}).fetch1()
-    # Re-encode the stored datetime back to ticks. Since we stored at µs precision,
-    # the recovered ticks rounds to the nearest µs (10 ticks).
-    recovered = datetime_to_ticks(eb_db["start_time"])
+    wall_clock = eb_db["start_time"]                         # tz-naive
+    offset_hours = float(eb_db["start_offset_hours"] or 0.0)
+    tz_aware = wall_clock.replace(
+        tzinfo=timezone(timedelta(hours=offset_hours))
+    )
+    recovered = datetime_to_ticks(tz_aware)
+    # Stored at µs precision → recovery rounds to the nearest µs (10 ticks).
     assert abs(recovered - original_ticks) <= 10

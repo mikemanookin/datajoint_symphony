@@ -10,7 +10,7 @@ state. This doc describes what changed and how to move data forward.
 | Flask REST app at `app.py` | Python library + CLI (`python -m symphony_dj`) | [ADR-0005](../spec/decisions/0005-drop-flask-rest.md) |
 | Hard-coded `host='127.0.0.1'`, `password='simple'` in `schema.py` and `app.py` | `config/datajoint_config.yaml` + env vars | [ADR-0003](../spec/decisions/0003-yaml-configuration.md) |
 | `id: int auto_increment` + `h5_uuid: varchar(255)` on every entity | UUID is the primary key | [ADR-0001](../spec/decisions/0001-uuid-primary-keys.md) |
-| `properties: json` columns (MySQL only) | `properties: longblob` | [ADR-0002](../spec/decisions/0002-datajoint-v20-migration.md) |
+| `properties: json` columns | `properties: json` (kept — DataJoint 2.0 has first-class JSON support; the legacy schema had this right) | [ADR-0002](../spec/decisions/0002-datajoint-v20-migration.md) |
 | `helpers/utils.py` `NAS_DATA_DIR = '/Volumes/data/...'` | `paths.mea_data_root` in YAML / `$DJ_MEA_DATA_ROOT` | [ADR-0003](../spec/decisions/0003-yaml-configuration.md) |
 | No `Background` table | First-class `Background` table | DJ JSON exposes per-device backgrounds, legacy dropped them. |
 | `Tags.tag` was a comma-separated string | One `Tag` row per `(entity, user, tag)` | Native filtering; no string parsing in queries. |
